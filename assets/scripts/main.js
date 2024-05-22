@@ -24,6 +24,8 @@ function getRecipesFromStorage() {
 	// A9. TODO - Complete the functionality as described in this function
 	//           header. It is possible in only a single line, but should
 	//           be no more than a few lines.
+
+	return JSON.parse(localStorage.getItem('recipes')) || [];
 }
 
 /**
@@ -34,6 +36,12 @@ function getRecipesFromStorage() {
  * @param {Array<Object>} recipes An array of recipes
  */
 function addRecipesToDocument(recipes) {
+	const mainElement = document.querySelector('main');
+	recipes.forEach(recipe => {
+		const recipeCard = document.createElement('recipe-card');
+		recipeCard.data = recipe;
+		mainElement.appendChild(recipeCard);
+	});
 	// A10. TODO - Get a reference to the <main> element
 	// A11. TODO - Loop through each of the recipes in the passed in array,
 	//            create a <recipe-card> element for each one, and populate
@@ -51,6 +59,7 @@ function saveRecipesToStorage(recipes) {
 	// B1. TODO - Complete the functionality as described in this function
 	//            header. It is possible in only a single line, but should
 	//            be no more than a few lines.
+	localStorage.setItem('recipes', JSON.stringify(recipes));
 }
 
 /**
@@ -58,6 +67,32 @@ function saveRecipesToStorage(recipes) {
  * <button>.
  */
 function initFormHandler() {
+	const form = document.querySelector('form#new-recipe');
+	form.addEventListener('submit', event => {
+		event.preventDefault();
+		handleFormSubmit(form);
+	});
+
+	const clearButton = document.querySelector('button.danger');
+	clearButton.addEventListener('click', () => {
+		localStorage.clear();
+		document.querySelector('main').innerHTML = ''; 
+	});
+	const formData = new FormData(form);
+	const recipeObject = {};
+	for (const [key, value] of formData.entries()) {
+		recipeObject[key] = value;
+	}
+
+	const recipeCard = document.createElement('recipe-card');
+	recipeCard.data = recipeObject;
+	document.querySelector('main').appendChild(recipeCard);
+
+	const recipes = getRecipesFromStorage();
+	recipes.push(recipeObject);
+	saveRecipesToStorage(recipes);
+
+	form.reset(); 
 	// B2. TODO - Get a reference to the <form> element
 	// B3. TODO - Add an event listener for the 'submit' event, which fires when the
 	//            submit button is clicked
